@@ -187,8 +187,8 @@ function handler(req, res) {
   send(req, res, manifest[key]);
 }
 
-// Vercel runs server.js itself as the entrypoint and requires its default export
-// to be a request handler, so export the handler with the helpers attached.
+// The handler is the default export too: Vercel's "Node" preset (not used, see
+// vercel.json) runs server.js directly and requires that, instead of api/index.js.
 module.exports = Object.assign(handler, { handler, manifest, load });
 
 if (require.main === module) {

@@ -1,10 +1,10 @@
 {
+  "framework": null,
   "buildCommand": "node build-vercel.js",
   "outputDirectory": "public",
   "functions": {
     "api/index.js": {
       "includeFiles": "{archive/**,betterpitch/**}",
-      "memory": 1024,
       "maxDuration": 30
     }
   },
