@@ -49,7 +49,10 @@ limit into `public/` so they are served as static files.
   home hero (`hero.*`), the ivory / charcoal / champagne-gold theme (`theme.css`, `recolor.js`)
   and its motion (`theme.js`: scroll reveals, staggered headings, parallax, card tilt,
   page transitions; off under `prefers-reduced-motion`). The theme only restyles: no section,
-  element or layout size changes.
+  element or layout size changes. `voice.*` adds the playful voice-agent effects on top
+  (a waveform that speaks at the top of each section, call-event chips, logos and icons
+  that ring, check marks that pop, step badges that pulse, levitating badges, dial rings
+  on CTAs); it only appends its own absolutely positioned decorations.
 - `betterpitch/vendor/` – GSAP + ScrollTrigger and Motion, served locally because the
   replica's CSP blocks CDNs. To update: `npm install`, then copy `gsap/dist/gsap.min.js`,
   `gsap/dist/ScrollTrigger.min.js` and `motion/dist/motion.js` from `node_modules/`.

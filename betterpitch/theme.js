@@ -10,6 +10,9 @@
 // transient inline styles and three fixed overlays; split headings are put back
 // to their original text nodes once revealed, so no element is moved, removed
 // or re-ordered and React keeps valid references to everything it rendered.
+// voice.js (the playful voice-agent effects) builds on this layer: it listens
+// for bp:motion (libraries loaded, reveals set up), bp:route (reveals set up
+// again after a client-side page change) and bp:scrubs (ScrollTrigger re-bound).
 (function () {
   // pages framed inside the site (the chat widget) keep the colours, not the motion
   if (window.top !== window) return;
@@ -19,6 +22,7 @@
 
   const EASE = [0.22, 1, 0.36, 1];      // expo-like out
   const EASE_IO = [0.76, 0, 0.24, 1];   // for the veil
+  const EASE_WORD = [0.34, 1.25, 0.64, 1]; // words land with a small bounce
 
   // hold the page hidden until entrance states are set (content.js / hero.js
   // unhide on the same tick; this keeps the first frame from flashing)
@@ -114,7 +118,7 @@
     wholes.forEach(w => { w.style.opacity = '0'; });
     const run = () => {
       const anims = s.units.map((u, i) => words.includes(u)
-        ? M.animate(u, { transform: ['translateY(118%)', 'translateY(0%)'] }, { duration: 1.05, delay: delay + i * 0.045, ease: EASE })
+        ? M.animate(u, { transform: ['translateY(118%)', 'translateY(0%)'] }, { duration: 1.05, delay: delay + i * 0.045, ease: EASE_WORD })
         : M.animate(u, { opacity: [0, 1] }, { duration: 1.1, delay: delay + i * 0.045, ease: EASE }));
       settled(anims, s.restore);
     };
@@ -254,6 +258,7 @@
       G.to('#bp-hero .bph-tiles', { yPercent: 8, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } });
     }
     ST.refresh();
+    document.dispatchEvent(new Event('bp:scrubs'));
   }
 
   // ---- pointer interactions (GSAP quickTo) ----
@@ -377,6 +382,7 @@
         veilOut();
         scrubs();
         reveal(true);
+        document.dispatchEvent(new Event('bp:route'));
       }, 380);
     };
     for (const k of ['pushState', 'replaceState']) {
@@ -448,6 +454,7 @@
       reveal(true);
       if (fine) pointer();
       transitions();
+      document.dispatchEvent(new Event('bp:motion'));
       // lazy images change section heights: keep trigger positions current
       let rt;
       const main = document.querySelector('main');
@@ -458,8 +465,7 @@
       hide.remove();
     }
   }
-  // same delay as content.js / hero.js (registered after them, so runs after
-  // they've swapped copy and placed the hero)
-  window.addEventListener('load', () => setTimeout(start, 300));
-  setTimeout(start, 4200);
+  // once React has hydrated (bpReady, defined in content.js), after content.js
+  // has swapped the copy and hero.js has placed the hero
+  bpReady(start, 120);
 })();

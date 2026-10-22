@@ -1,8 +1,8 @@
 // Adds the voice-demo hero as the first section of the home page and pushes the
 // recorded page down under it. Animations and interactions are ported from the
 // betterpitch.vercel.app hero. Injected into every HTML page by server.js; only
-// acts on "/". Like content.js it waits for React to hydrate before touching the
-// DOM, otherwise React would throw the section away (hydration mismatch).
+// acts on "/". Like content.js it waits for React to hydrate (bpReady, defined
+// there) before touching the DOM, otherwise React would throw the section away.
 (function () {
   if (location.pathname !== '/') return;
 
@@ -203,6 +203,5 @@
     }
     hide.remove();
   }
-  window.addEventListener('load', () => setTimeout(start, 300));
-  setTimeout(start, 4000); // never leave the page hidden if load is slow
+  bpReady(start, 50); // after content.js has swapped the copy
 })();

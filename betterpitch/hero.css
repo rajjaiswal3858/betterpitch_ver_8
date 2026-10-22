@@ -79,6 +79,10 @@
 .bph-orb:active{transform:scale(.95);transition-duration:.1s}
 .bph-orb.live::before{animation:bphRing 2s ease-out infinite}
 @keyframes bphRing{0%{transform:scale(.92);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+/* idle: a ring leaves the orb every few seconds, like a phone waiting to be picked up */
+.bph-orb::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid rgba(243,230,200,.75);opacity:0;animation:bphIdle 5.5s ease-out 2.4s infinite}
+.bph-orb.live::after,.bph-orb-wrap:hover .bph-orb::after{animation:none}
+@keyframes bphIdle{0%{opacity:.85;transform:scale(.9)}32%{opacity:0;transform:scale(1.7)}100%{opacity:0;transform:scale(1.7)}}
 .bph-tri{position:absolute;left:54%;top:50%;transform:translate(-50%,-50%);border-left:24px solid #fff;border-top:15px solid transparent;border-bottom:15px solid transparent}
 .bph-orb.live .bph-tri{border:0;width:24px;height:28px;left:50%;background:linear-gradient(90deg,#fff 0 35%,transparent 35% 65%,#fff 65%)}
 .bph-orb.live{border-color:rgba(255,255,255,.5);
@@ -163,6 +167,6 @@
   .bph-pill{font-size:13px;padding:9px 14px}
 }
 @media (prefers-reduced-motion:reduce){
-  .bph-tiles i,.bph-orb::before,.bph-wave i,.bph-sample,.bph-mini i,#bp-hero h1 em{animation:none!important}
+  .bph-tiles i,.bph-orb::before,.bph-orb::after,.bph-wave i,.bph-sample,.bph-mini i,#bp-hero h1 em{animation:none!important}
   .bph-enter,.bph-enter-side{animation:none;opacity:1;transform:none}
 }

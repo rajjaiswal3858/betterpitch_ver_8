@@ -253,11 +253,31 @@
   }
 
   // Editing text before React hydrates causes a mismatch (React error #418) and
-  // React re-renders the original text. So hide the page, wait for load plus a
-  // beat for hydration, swap, then keep watching for later client renders.
+  // React re-renders the whole page from scratch. So hide the page, wait for
+  // hydration, swap, then keep watching for later client renders.
   const hide = document.createElement('style');
   hide.textContent = 'body{opacity:0!important}';
   document.head.appendChild(hide);
+
+  // Runs fn once React has hydrated the page (hero.js, theme.js use it too, in
+  // this order). Hydration leaves a __reactFiber$ property on every DOM node it
+  // touched, so it's polled for on the last parts of the page rather than
+  // guessed with a fixed delay; a fallback timer never leaves the page hidden.
+  const hydrated = () => {
+    const main = document.querySelector('main');
+    if (!main) return false;
+    // the nav (its logo is swapped below), every top-level section and the footer
+    const els = [document.querySelector('nav a'), main, ...main.querySelectorAll(':scope > div > *'), [...document.querySelectorAll('footer a')].pop()].filter(Boolean);
+    return els.every(el => Object.keys(el).some(k => k.startsWith('__reactFiber')));
+  };
+  window.bpReady = (fn, extra = 0) => {
+    let done = false;
+    const go = () => { if (!done) { done = true; setTimeout(fn, 200 + extra); } };
+    const poll = () => { if (done) return; hydrated() ? go() : setTimeout(poll, 60); };
+    window.addEventListener('load', poll);
+    setTimeout(poll, 1500); // in case load already fired, or is slow
+    setTimeout(go, 7000);
+  };
 
   let started = false;
   function start() {
@@ -276,6 +296,5 @@
     });
     hide.remove();
   }
-  window.addEventListener('load', () => setTimeout(start, 300));
-  setTimeout(start, 4000); // never leave the page hidden if load is slow
+  bpReady(start);
 })();
