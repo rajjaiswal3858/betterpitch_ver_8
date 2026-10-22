@@ -76,8 +76,21 @@ const CSP = [
 // link that works on any host or port; "/__ext//" is 8 chars, same as "https://".
 const LOCAL_ORIGIN = '/.'.repeat(11);
 
+// The recorded /pricing cards nest a <div> in a <p>, which the HTML parser
+// can't represent (it closes the <p> early), so React's hydration never matched
+// (error #418) and it re-rendered the page. The wrapper is served as a <span>
+// in both the HTML and the component that renders it; its "flex" class keeps
+// the layout identical. Only in HTML markup and a JS chunk, never in RSC rows.
+const PRICE_WRAP = 'flex gap-1.5 items-end mb-2';
+function fixMarkup(s) {
+  if (!s.includes(PRICE_WRAP)) return s;
+  return s
+    .split(`("div",{className:"${PRICE_WRAP}"`).join(`("span",{className:"${PRICE_WRAP}"`)
+    .replace(/<div class="flex gap-1\.5 items-end mb-2">((?:(?!<\/?div\b)[\s\S])*?)<\/div><\/p>/g, `<span class="${PRICE_WRAP}">$1</span></p>`);
+}
+
 function rewrite(body) {
-  let s = body.toString('utf8');
+  let s = fixMarkup(body.toString('utf8'));
   s = s.split('https://www.artisan.co').join(LOCAL_ORIGIN);
   // Only the chat widget's /embed/ URLs: other dashboard links (e.g. "Login" ->
   // /sign-in) must stay absolute, or Next.js treats them as in-site pages.

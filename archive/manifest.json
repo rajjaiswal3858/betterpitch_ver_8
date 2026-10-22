@@ -30568,5 +30568,10 @@
   "file": "33f8879fcec4ad68bb7ed0201df0a8e04f3d1ead",
   "status": 200,
   "type": "image/webp"
+ },
+ "www.artisan.co/_next/image?url=%2Fassets%2Fsignals%2Fwebhook-1.webp&w=1920&q=75&dpl=dpl_4wyZ4s7Q3m8sQYFauCJSFFyduPyj": {
+  "file": "11948c11cc184a2b80dd9801368cef1dfdd61917",
+  "status": 200,
+  "type": "image/webp"
  }
 }
