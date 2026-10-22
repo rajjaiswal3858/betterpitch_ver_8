@@ -187,7 +187,9 @@ function handler(req, res) {
   send(req, res, manifest[key]);
 }
 
-module.exports = { handler, manifest, load };
+// Vercel runs server.js itself as the entrypoint and requires its default export
+// to be a request handler, so export the handler with the helpers attached.
+module.exports = Object.assign(handler, { handler, manifest, load });
 
 if (require.main === module) {
   http.createServer(handler).listen(PORT, () => console.log(`Artisan replica running at http://localhost:${PORT}`));
