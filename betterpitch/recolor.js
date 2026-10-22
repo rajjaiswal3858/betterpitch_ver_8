@@ -1,4 +1,4 @@
-// Purple -> BetterPitch teal/ocean hue mapping, shared by server.js (hex colours
+// Purple -> BetterPitch luxury palette mapping, shared by server.js (hex colours
 // in CSS/SVG/HTML/JS) and recolor-images.js (pixels). Only purple-to-magenta hues
 // move; skin tones, blues, greens and oranges are left alone, so photos of people
 // and partner logos keep their colours.
@@ -12,8 +12,15 @@ function purpleWeight(h, s) {
   return w * Math.min(1, s / 0.15);
 }
 
+function hsl2rgb(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  const [r1, g1, b1] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return [(r1 + m) * 255, (g1 + m) * 255, (b1 + m) * 255];
+}
+
 // r,g,b 0..255 -> [r,g,b]; unchanged when not purple.
 function shift(r, g, b) {
+  const r0 = r, g0 = g, b0 = b;
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
   if (d < 1e-6) return null;
@@ -22,14 +29,13 @@ function shift(r, g, b) {
   h = (h * 60 + 360) % 360;
   const w = purpleWeight(h, s);
   if (w <= 0) return null;
-  // dark purples become deep ocean blue, light ones (lavender) a soft teal
+  // dark purples become warm charcoal, mid tones champagne gold, light ones
+  // (lavender) soft beige; same lightness, so contrast is kept
   const dark = Math.max(0, Math.min(1, (0.5 - l) / 0.3));
-  const target = 186 + 18 * dark;
-  const nh = h + (target - h) * w;
-  const ns = s * (1 - 0.2 * dark * w);
-  const c = (1 - Math.abs(2 * l - 1)) * ns, x = c * (1 - Math.abs((nh / 60) % 2 - 1)), m = l - c / 2;
-  const [r1, g1, b1] = nh < 60 ? [c, x, 0] : nh < 120 ? [x, c, 0] : nh < 180 ? [0, c, x] : nh < 240 ? [0, x, c] : nh < 300 ? [x, 0, c] : [c, 0, x];
-  return [Math.round((r1 + m) * 255), Math.round((g1 + m) * 255), Math.round((b1 + m) * 255)];
+  const sat = Math.min(s, 0.42);
+  const full = hsl2rgb(40, sat + (0.07 - sat) * dark, l);
+  // blend in RGB at the feathered edges (a hue sweep from violet to gold would pass through blue or red)
+  return [Math.round(r0 + (full[0] - r0) * w), Math.round(g0 + (full[1] - g0) * w), Math.round(b0 + (full[2] - b0) * w)];
 }
 
 const hexCache = new Map();
@@ -51,4 +57,4 @@ function recolorHex(text) {
   });
 }
 
-if (typeof module !== 'undefined') module.exports = { shift, recolorHex, purpleWeight };
+if (typeof module !== 'undefined') module.exports = { shift, recolorHex, purpleWeight, hsl2rgb };

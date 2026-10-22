@@ -131,8 +131,9 @@ function send(req, res, entry) {
     // BetterPitch copy is swapped in on the client (betterpitch/content.js) so the
     // recorded markup and RSC payloads stay byte-identical.
     // The home page's first section is added the same way (betterpitch/hero.js).
-    // The colour/motion theme is a stylesheet plus a small script (betterpitch/theme.*),
-    // linked last so it wins over the recorded CSS.
+    // The colour/motion theme is a stylesheet plus a script (betterpitch/theme.*),
+    // linked last so it wins over the recorded CSS. theme.js loads its vendored
+    // animation libraries itself once React has hydrated (the CSP only allows 'self').
     body = body.replace('</head>', '<link rel="stylesheet" href="/__bp/theme.css"><script src="/__bp/content.js"></script><script src="/__bp/hero.js"></script><script src="/__bp/theme.js"></script></head>');
   }
   // gzip text: smaller pages, and keeps big JSON/SVG under Vercel's 4.5 MB response limit
@@ -148,10 +149,14 @@ function send(req, res, entry) {
 function handler(req, res) {
   const u = new URL(req.url, 'http://localhost');
   // Analytics endpoints (PostHog proxy) - answer with an empty success so nothing errors.
-  const BP = { '/__bp/content.js': 'application/javascript', '/__bp/hero.js': 'application/javascript', '/__bp/hero.css': 'text/css', '/__bp/theme.css': 'text/css', '/__bp/theme.js': 'application/javascript' };
+  const BP = {
+    '/__bp/content.js': 'application/javascript', '/__bp/hero.js': 'application/javascript', '/__bp/hero.css': 'text/css',
+    '/__bp/theme.css': 'text/css', '/__bp/theme.js': 'application/javascript',
+    '/__bp/vendor/gsap.min.js': 'application/javascript', '/__bp/vendor/ScrollTrigger.min.js': 'application/javascript', '/__bp/vendor/motion.js': 'application/javascript',
+  };
   if (BP[u.pathname]) {
     res.writeHead(200, { 'content-type': BP[u.pathname], 'cache-control': CACHE });
-    return res.end(fs.readFileSync(path.join(__dirname, 'betterpitch', path.basename(u.pathname))));
+    return res.end(fs.readFileSync(path.join(__dirname, 'betterpitch', u.pathname.slice('/__bp/'.length))));
   }
   if (u.pathname.startsWith('/ingest')) {
     res.writeHead(200, { 'content-type': 'application/json' });

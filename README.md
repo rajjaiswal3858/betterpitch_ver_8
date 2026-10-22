@@ -45,6 +45,14 @@ limit into `public/` so they are served as static files.
 - `verify.js` – checks the local copy page by page
 - `pages.txt` – list of pages to record
 - `archive/` – recorded files + `manifest.json` (URL -> file)
+- `betterpitch/` – the BetterPitch layer `server.js` adds to every page: copy (`content.js`),
+  home hero (`hero.*`), the ivory / charcoal / champagne-gold theme (`theme.css`, `recolor.js`)
+  and its motion (`theme.js`: scroll reveals, staggered headings, parallax, card tilt,
+  page transitions; off under `prefers-reduced-motion`). The theme only restyles: no section,
+  element or layout size changes.
+- `betterpitch/vendor/` – GSAP + ScrollTrigger and Motion, served locally because the
+  replica's CSP blocks CDNs. To update: `npm install`, then copy `gsap/dist/gsap.min.js`,
+  `gsap/dist/ScrollTrigger.min.js` and `motion/dist/motion.js` from `node_modules/`.
 
 ## Limits
 

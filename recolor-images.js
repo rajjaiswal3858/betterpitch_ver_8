@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer-core');
-const { shift, purpleWeight } = require('./betterpitch/recolor');
+const { shift, purpleWeight, hsl2rgb } = require('./betterpitch/recolor');
 
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const ARCHIVE = path.join(__dirname, 'archive');
@@ -21,7 +21,7 @@ const MIN_PURPLE = 0.003; // share of visible pixels that must be purple before 
 
   const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
   const page = await browser.newPage();
-  await page.evaluate(`window.purpleWeight = ${purpleWeight}; window.shift = ${shift};`);
+  await page.evaluate(`window.purpleWeight = ${purpleWeight}; window.hsl2rgb = ${hsl2rgb}; window.shift = ${shift};`);
 
   let done = 0, changed = 0, skipped = 0;
   for (const [file, type] of jobs) {
