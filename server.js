@@ -136,6 +136,11 @@ function send(req, res, entry) {
     // animation libraries itself once React has hydrated (the CSP only allows 'self').
     // The playful voice-agent effects (betterpitch/voice.*) build on theme.js.
     body = body.replace('</head>', '<link rel="stylesheet" href="/__bp/theme.css"><link rel="stylesheet" href="/__bp/voice.css"><script src="/__bp/content.js"></script><script src="/__bp/hero.js"></script><script src="/__bp/theme.js"></script><script src="/__bp/voice.js"></script></head>');
+    // The intro screen (betterpitch/intro.*) goes first in <head> so it covers the
+    // page before anything else paints. theme.js's libraries are preloaded so they
+    // are cached by the time it asks for them (the intro waits on theme.js).
+    body = body.replace(/<head[^>]*>/, m => m + '<link rel="stylesheet" href="/__bp/intro.css"><script src="/__bp/intro.js"></script>' +
+      ['gsap.min.js', 'ScrollTrigger.min.js', 'motion.js'].map(f => `<link rel="preload" as="script" href="/__bp/vendor/${f}">`).join(''));
   }
   // gzip text: smaller pages, and keeps big JSON/SVG under Vercel's 4.5 MB response limit
   if (typeof body === 'string' && body.length > 1024 && /\bgzip\b/.test(req.headers['accept-encoding'] || '')) {
@@ -154,6 +159,7 @@ function handler(req, res) {
     '/__bp/content.js': 'application/javascript', '/__bp/hero.js': 'application/javascript', '/__bp/hero.css': 'text/css',
     '/__bp/theme.css': 'text/css', '/__bp/theme.js': 'application/javascript',
     '/__bp/voice.css': 'text/css', '/__bp/voice.js': 'application/javascript',
+    '/__bp/intro.css': 'text/css', '/__bp/intro.js': 'application/javascript',
     '/__bp/vendor/gsap.min.js': 'application/javascript', '/__bp/vendor/ScrollTrigger.min.js': 'application/javascript', '/__bp/vendor/motion.js': 'application/javascript',
   };
   if (BP[u.pathname]) {

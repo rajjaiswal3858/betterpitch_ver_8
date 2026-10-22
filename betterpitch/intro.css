@@ -1,0 +1,58 @@
+/* Intro screen (intro.js): a line-art logo story in the spirit of Moov Studio's
+   "Logo animation for APW", told for a voice agent, then the BetterPitch
+   wordmark fills in as the loader and the site opens through a widening circle.
+   The overlay sits on <html> (not <body>, which the copy/theme scripts keep at
+   opacity 0 until React has hydrated). */
+#bp-intro{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;overflow:hidden;
+  --ink:#1f1e1b;--ivory:#fbf8f2;--gold:#c6a76b;--gold-deep:#a3854c;--s:min(46vmin,300px);
+  background:var(--ivory);color:var(--ink);font-family:var(--font-inter),var(--font-helvetica),system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#bp-intro.open{pointer-events:none}
+#bp-intro *{box-sizing:border-box}
+
+.bpi-stage{display:flex;flex-direction:column;align-items:center;transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+#bp-intro.leaving .bpi-stage{opacity:0;transform:scale(.94)}
+.bpi-box{position:relative;width:var(--s);height:var(--s)}
+.bpi-box svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.bpi-box svg *{transform-box:fill-box;transform-origin:center}
+
+/* story */
+.bpi-story line,.bpi-story circle,.bpi-story path{fill:none;stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round}
+.bpi-story .side line{stroke-width:9}
+.bpi-story .node{fill:var(--ivory);stroke-width:5}
+.bpi-story .phone path{stroke-width:5}
+.bpi-story .ring{stroke-width:5;stroke:var(--gold-deep)}
+.bpi-story .orbit{stroke-width:7}
+.bpi-story .bars line{stroke-width:7}
+.bpi-story .disc{fill:var(--ink);stroke:none}
+.bpi-story .dot{fill:var(--gold);stroke:none}
+.bpi-story g,.bpi-story line,.bpi-story circle,.bpi-story path{opacity:0}
+
+/* final mark: speech-bubble hexagon with the BP monogram */
+.bpi-mark path{fill:none;stroke:var(--ink);stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
+.bpi-mark text{fill:var(--ink);font-weight:700;font-size:62px;letter-spacing:-3px;opacity:0}
+.bpi-mark .tick{stroke:var(--gold);stroke-width:6;opacity:0}
+
+/* wordmark: an outline copy with a filled copy on top, revealed left to right as
+   the site loads (--p, 0..100, set by intro.js); the gold dot lands on the i */
+.bpi-word{position:relative;margin-top:calc(var(--s) * -.02);font-family:var(--bpi-serif,Georgia),Georgia,serif;font-size:calc(var(--s) * .27);line-height:1.1;letter-spacing:-.02em;white-space:nowrap;--p:0}
+.bpi-word>span{display:block}
+.bpi-word .o{color:transparent;-webkit-text-stroke:1px rgba(31,30,27,.32)}
+.bpi-word .f{position:absolute;inset:0;color:var(--ink);clip-path:inset(-20% calc(100% - var(--p) * 1%) -20% 0)}
+.bpi-word i{display:inline-block;font-style:normal;opacity:0;transform:translateY(.45em)}
+.bpi-word.in i{animation:bpiRise .8s cubic-bezier(.2,1.25,.4,1) calc(var(--i) * 45ms) forwards}
+@keyframes bpiRise{to{opacity:1;transform:none}}
+.bpi-word .dl{position:relative}
+.bpi-word .tittle{position:absolute;left:50%;top:.16em;width:.15em;height:.15em;margin-left:-.075em;border-radius:50%;background:var(--gold);opacity:0;box-shadow:0 0 0 0 rgba(198,167,107,.5)}
+.bpi-word .tittle.land{animation:bpiLand .7s cubic-bezier(.3,.6,.4,1) forwards,bpiPing .8s ease-out .58s}
+@keyframes bpiLand{0%{opacity:1;transform:translateY(-70vh) scale(.7)}62%{transform:translateY(0) scale(1.25,.7)}78%{transform:translateY(-.22em) scale(.92,1.1)}90%{transform:translateY(0) scale(1.05,.95)}100%{opacity:1;transform:none}}
+@keyframes bpiPing{from{box-shadow:0 0 0 0 rgba(198,167,107,.6)}to{box-shadow:0 0 0 .5em rgba(198,167,107,0)}}
+
+.bpi-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bpi-skip{position:absolute;right:22px;bottom:20px;border:1px solid rgba(31,30,27,.16);background:rgba(255,253,248,.7);color:rgba(31,30,27,.6);font:500 12px/1 var(--font-inter),system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 14px;border-radius:999px;cursor:pointer;transition:color .3s,border-color .3s,opacity .4s;opacity:0;animation:bpiFade .5s ease 1.2s forwards}
+.bpi-skip:hover{color:var(--ink);border-color:var(--gold)}
+#bp-intro.leaving .bpi-skip{opacity:0!important;animation:none}
+@keyframes bpiFade{to{opacity:1}}
+
+/* the home hero's own entrance waits until the intro opens */
+html.bp-intro-on .bph-enter,html.bp-intro-on .bph-enter-side,html.bp-intro-on .bph-sample{animation-play-state:paused!important}

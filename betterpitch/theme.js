@@ -438,16 +438,22 @@
     });
   }
 
+  // The intro screen (intro.js) fills its wordmark loader until bp:ready, then
+  // resolves window.bpIntro as it starts opening: the page is shown and its
+  // entrance played only then, so they aren't spent behind the intro.
+  const ready = () => document.dispatchEvent(new Event('bp:ready'));
   let started = false;
   async function start() {
     if (started) return;
     started = true;
     try {
       grain();
-      if (reduce) return;
+      if (reduce) { ready(); if (window.bpIntro) await window.bpIntro; return; }
       await Promise.all(['gsap.min.js', 'ScrollTrigger.min.js', 'motion.js'].map(load));
       M = window.Motion; G = window.gsap; ST = window.ScrollTrigger;
       G.registerPlugin(ST);
+      ready();
+      if (window.bpIntro) await window.bpIntro;
       progress();
       entrance();
       scrubs(); // before reveal(): marks the parallaxed pictures
@@ -461,6 +467,7 @@
       if (main) new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => ST.refresh(), 250); }).observe(main);
     } catch (e) {
       console.warn('BetterPitch motion layer off:', e);
+      ready();
     } finally {
       hide.remove();
     }
